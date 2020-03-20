@@ -1,0 +1,26 @@
+#lang sicp
+
+(define (prime? n times)
+  (cond ((= times (log n n)) true)
+        ((miller-rabin-test n) (prime? n (- times 1)))
+        (else false)))
+
+(define (miller-rabin-test n)
+  (define (even? n)
+    (= (remainder n 2) 0))
+  (define (square n)
+    (* n n))
+  (define (non-trivial? n m)
+    (cond ((or (= n 1) (= n (- m 1))) #f)
+          (else (= (remainder (square n) m) 1))))
+  (define (expmod base exp m)
+    (cond ((= exp 0)
+           1)
+          ((even? exp)
+           (let ((t (expmod base (/ exp 2) m)))
+           (if (non-trivial? t m) 0 (remainder (square t) m))))
+          (else
+           (remainder (* base (expmod base (- exp 1) m)) m))))
+  (define (try-it a)
+    (= (expmod a (- n 1) n) 1))
+  (try-it (+ 1 (random (- n 1)))))
